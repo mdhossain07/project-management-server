@@ -31,6 +31,13 @@ async function run() {
       res.send(result);
     });
 
+    // app.get("/api/v1/user/:email", async (req, res) => {
+    //   const { email } = req.params;
+    //   const query = { email: email };
+    //   const result = await userCollection.findOne(query);
+    //   res.send(result);
+    // });
+
     app.post("/api/v1/add-task", async (req, res) => {
       const task = req.body;
       const result = await taskCollection.insertOne(task);
@@ -42,18 +49,46 @@ async function run() {
       res.send(result);
     });
 
-    // app.get("/api/v1/get-task", async (req, res) => {
-    //     const {email} = req.params;
-    //     const query = {email: }
-    // })
+    app.get("/api/v1/get-task/:id", async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      const result = await taskCollection.findOne(query);
+      res.send(result);
+    });
 
-    app.patch(`/api/v1/update-task/:id`, async (req, res) => {
+    app.get("/api/v1/task/:email", async (req, res) => {
+      const { email } = req.params;
+      const query = {
+        createdBy: email,
+      };
+      const result = await taskCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.patch(`/api/v1/update-status/:id`, async (req, res) => {
       const { id } = req.params;
       const { status } = req.body;
       const filter = { _id: new ObjectId(id) };
       const updatedtStatus = {
         $set: {
           status: status,
+        },
+      };
+      const result = await taskCollection.updateOne(filter, updatedtStatus);
+      res.send(result);
+    });
+
+    app.patch(`/api/v1/update-task/:id`, async (req, res) => {
+      const { id } = req.params;
+      const task = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedtStatus = {
+        $set: {
+          title: task.title,
+          priority: task.priority,
+          image: task.image,
+          deadline: task.deadline,
+          description: task.description,
         },
       };
       const result = await taskCollection.updateOne(filter, updatedtStatus);
